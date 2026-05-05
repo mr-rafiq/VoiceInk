@@ -3,6 +3,12 @@ DEPS_DIR := $(HOME)/VoiceInk-Dependencies
 WHISPER_CPP_DIR := $(DEPS_DIR)/whisper.cpp
 FRAMEWORK_PATH := $(WHISPER_CPP_DIR)/build-apple/whisper.xcframework
 LOCAL_DERIVED_DATA := $(CURDIR)/.local-build
+XCODE_APP ?= /Applications/Xcode.app
+
+ifneq ($(wildcard $(XCODE_APP)/Contents/Developer),)
+DEVELOPER_DIR ?= $(XCODE_APP)/Contents/Developer
+export DEVELOPER_DIR
+endif
 
 .PHONY: all clean whisper setup build local check healthcheck help dev run
 
@@ -18,6 +24,13 @@ check:
 	@command -v git >/dev/null 2>&1 || { echo "git is not installed"; exit 1; }
 	@command -v xcodebuild >/dev/null 2>&1 || { echo "xcodebuild is not installed (need Xcode)"; exit 1; }
 	@command -v swift >/dev/null 2>&1 || { echo "swift is not installed"; exit 1; }
+	@xcodebuild -version >/dev/null 2>&1 || { \
+		echo "Full Xcode is required, but xcodebuild is not using a full Xcode developer directory."; \
+		echo "Install Xcode or run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer"; \
+		exit 1; \
+	}
+	@xcrun --sdk macosx --show-sdk-path >/dev/null 2>&1 || { echo "macOS SDK not found. Open Xcode once and finish installing components."; exit 1; }
+	@xcrun --sdk iphonesimulator --show-sdk-path >/dev/null 2>&1 || { echo "iPhone Simulator SDK not found. Open Xcode once and finish installing components."; exit 1; }
 	@echo "Prerequisites OK"
 
 healthcheck: check
@@ -38,6 +51,7 @@ whisper:
 	fi
 
 setup: whisper
+	@test -d "$(FRAMEWORK_PATH)" || { echo "Missing whisper.xcframework at $(FRAMEWORK_PATH)"; exit 1; }
 	@echo "Whisper framework is ready at $(FRAMEWORK_PATH)"
 	@echo "Please ensure your Xcode project references the framework from this new location."
 

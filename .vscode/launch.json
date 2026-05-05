@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "VoiceInk: Compile Local",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "make local",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "VoiceInk: Compile and Run Local",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "make local && open \"$HOME/Downloads/VoiceInk.app\"",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "VoiceInk: Debug App (CodeLLDB)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/.local-build/Build/Products/Debug/VoiceInk.app/Contents/MacOS/VoiceInk",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "VoiceInk: Build Local"
+    }
+  ]
+}
